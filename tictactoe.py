@@ -1,0 +1,203 @@
+#Tic-Tac-Toe
+#Speler=X
+#Computer=O
+
+#Tkinter für die grafische Oberfläche importieren 
+import tkinter as tk
+
+#Random für zufällige Computerzüge importieren
+import random
+
+#Liste für alle Buttons
+buttons = []
+
+#Merkte,ob das spiel beendet ist
+spiel_ende = False
+
+#Prüft,ob jemand gewonnen hat
+def pruefe_gewinner():
+    
+    global spiel_ende
+
+#Alle mögliche Gewinnkombinantionen
+    gewinnkombinationen = [
+        [0, 1, 2],#obere Ziele
+        [3, 4, 5],#mittlere Zeile
+        [6, 7, 8],#untere Zeile
+        
+        [0, 3, 6],#linke Spalte
+        [1, 4, 7],#mittlere Spalte
+        [2, 5, 8],#rechte Spalte
+        
+        [0, 4, 8],#Diagonale
+        [2, 4, 6]#andere Diagonale
+    ]
+
+#jede Gewinnkombinantion prüfen
+    for kombi in gewinnkombinationen:
+        
+#Zahlen aus der kombination speichern
+        a, b, c = kombi
+        
+        #prüfe ob alle Felder gleich sind
+        if (
+            buttons[a]["text"] != "" and
+            buttons[a]["text"] == buttons[b]["text"] == buttons[c]["text"]
+        ):
+
+#Gewinner speichern
+            gewinner = buttons[a]["text"]
+
+#Gewinner im Fenstertitelanzeigen
+            fenster.title(f"Gewinner: {gewinner}")
+#Spiele beenden
+            spiel_ende = True
+#alle buttons sperren
+            for button in buttons:
+                button.config(state="disabled")
+
+            return
+#prüfen auf unterschieden
+    voll = True
+
+    for button in buttons:
+        if button["text"] == "":
+            voll = False
+
+    if voll:
+        fenster.title("Unentschieden!")
+        spiel_ende = True
+
+#computer macht einen Zug
+def computer_zug():
+    
+    global spiel_ende
+#wenn Spiel vorbei ist
+    if spiel_ende:
+        return
+#Liste für freie felder
+    freie_felder = []
+#Alle Buttons durchsuchen
+    for button in buttons:
+        #nur leere Felder speichern
+        if button["text"] == "":
+            freie_felder.append(button)
+#Gibt es freie Felder?
+    if len(freie_felder) > 0:
+
+#zufälliges Feld auswählen
+        computer_button = random.choice(freie_felder)
+        
+# o setzen
+        computer_button["text"] = "o"
+        
+#Gewinner prüfen
+        pruefe_gewinner()
+
+#reaktion auf klick des spielers
+def klicken(button):
+    
+    global spiel_ende
+    
+#wenn spiel vorbei ist
+    if spiel_ende:
+        return
+    
+
+#Nur leere Felder dürfen geklickt werden
+    if button["text"] == "":
+
+#X setzen
+       button["text"] = "X"
+        
+#Gewinner prüfen
+       pruefe_gewinner()
+
+# Computer spielt nur weiter,
+# wenn noch niemand gewonnen hat
+    if not spiel_ende:
+        fenster.after(700, computer_zug)
+
+# Neues Spiel starten
+def neues_spiel():
+    
+    global spiel_ende
+    
+# Spiel wieder aktivieren
+    spiel_ende = False
+
+# Fenstertitel zurücksetzen
+    fenster.configure(bg="#E6E6FA")
+
+# Alle Felder leeren
+    for button in buttons:
+        button["text"] = ""
+        
+# Buttons wieder aktivieren        
+        button.config(state="normal")
+
+#Fenster erstellen
+fenster = tk.Tk()
+
+#Fenstertitel festlegen
+fenster.title("Tic-Tac-Toe")
+
+#drei Zeile erzeugern
+for zeile in range(3):
+  
+#drei Spalte erzeugern  
+    for spalte in range(3):
+
+#Button erzeugern
+        button = tk.Button(
+    fenster,
+    text="",
+    width=10,
+    height=4,
+    font=("Arial", 20, "bold"),
+    bg="#E6E6FA",
+    fg="#6A3D7A",
+    activebackground="#D8BFD8",
+    disabledforeground="#6A3D7A")
+        
+#klick-Funktion verbinden        
+        button.config(
+            command=lambda b=button: klicken(b)
+        )
+
+#Position festlegen
+        button.grid(
+            row=zeile,
+            column=spalte
+        )
+
+#Button in Liste speichern
+        buttons.append(button)
+
+#Neustart-Button-erzeugern
+restart_button = tk.Button(
+    fenster,
+    text="Neues Spiel",
+    command=neues_spiel
+)
+
+#neuestart-Button unter dem spielfeld anzeigen
+restart_button.grid(
+    row=3,
+    column=0,
+    columnspan=3,
+    sticky="we"
+)
+restart_button = tk.Button(
+    fenster,
+    text="Neues Spiel",
+    command=neues_spiel,
+    font=("Arial", 14, "bold"),
+    bg="#B19CD9",
+    fg="white",
+    activebackground="#9370DB",
+    activeforeground="white",
+    cursor="hand2")
+
+#Fenster starten
+fenster.mainloop()
